@@ -5,17 +5,51 @@
 #include <sys/utsname.h>  // For uname
 #include <unistd.h>
 #include <limits.h>
-using namespace std; 
+// using namespace std; 
 
 //variables
-string path;
-string g_path;
+std::string path;
+std::string home_path;
+std::string g_path;
+//functions
+
+//cd start
+void change_path_down(std::string& path){
+    int n = path.size() - 1;
+
+    while (n >= 0) {
+        if (path[n] == '/') {
+            break;
+        }
+        n--;
+    }
+
+    std::string final = (n >= 0) ? path.substr(0, n) : path;
+}
+
+void cd_back(){
+    //going back
+    change_path_down(g_path);
+
+    if(path==home_path){
+        path=g_path;
+    }else{
+        change_path_down(path);
+    };
+}
+
+void cd_next(std::string st){
+    //going next
+    g_path+=st;
+    path+=st;
+    std::cout<<st;
+}
 
 
-
-void get_username_and_systemname(string& path)
+//cd finishes
+void get_username_and_systemname(std::string& path)
 {
-    pair<string,string> info;
+    std::pair<std::string,std::string> info;
     // const char* username = getenv("USER");   
 
     char hostname[HOST_NAME_MAX],
@@ -45,28 +79,54 @@ void get_username_and_systemname(string& path)
         throw "get_userName_and_system: error2";
     }
     g_path=cwd;
+    home_path=cwd;
 
 }
 
+// void command_cd(){
+//     //update path & global path;
+// };
+
+void process_command(char* command){
+    
+    char * ptr = strtok(command," ");
+    while(ptr!=NULL){
+
+        // std::cout<<ptr<<"\n";
+        if(strcmp(ptr,"cd")){
+            ptr=strtok(NULL," ");
+            if(strcmp(ptr,"..")){
+                //cd back function;
+                cd_back();
+            }else{
+                //must be enter command;
+                cd_next(ptr);
+            }
+            continue;    
+        }
+
+        ptr=strtok(NULL," ");// ptr=strtok(NULL," ,");//removes space ans comma
+    }
+}
 int main(){
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
+    // std::ios_base::sync_with_stdio(false);
+    // std::cin.tie(NULL);
     try{
-        // std::cout<<"program started";
+        std::cout<<"program started\n";
         get_username_and_systemname(path);
+        std::cout<<path;
 
-        cout<<path<<"~>";
-        cout<<"\n"<<g_path<<endl;
+        while(true){
+            std::cout<<"\n"<<path<<"~>";
+            char command[1000];
+            std::cin.getline(command,1000);
+            process_command(command);
+        }
 
 
-
-
-
-
-
-    }catch(string ex)
+    }catch(std::string ex)
     {
-        cout<<ex;
+        std::cout<<ex;
     }    
     
     return 0;
