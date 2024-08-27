@@ -13,39 +13,6 @@ std::string home_path;
 std::string g_path;
 //functions
 
-//cd start
-void change_path_down(std::string& path){
-    int n = path.size() - 1;
-
-    while (n >= 0) {
-        if (path[n] == '/') {
-            break;
-        }
-        n--;
-    }
-
-    std::string final = (n >= 0) ? path.substr(0, n) : path;
-}
-
-void cd_back(){
-    //going back
-    change_path_down(g_path);
-
-    if(path==home_path){
-        path=g_path;
-    }else{
-        change_path_down(path);
-    };
-}
-
-void cd_next(std::string st){
-    //going next
-    g_path+=st;
-    path+=st;
-    std::cout<<st;
-}
-
-
 //cd finishes
 void get_username_and_systemname(std::string& path)
 {
@@ -87,30 +54,23 @@ void get_username_and_systemname(std::string& path)
 //     //update path & global path;
 // };
 
-void process_command(char* command){
-    
-    char * ptr = strtok(command," ");
-    while(ptr!=NULL){
+void process_command(std::string command){
+    //converting string to char*
+    char *charCommand = new char[command.size() + 1]; // +1 for null terminator
+    std::strcpy(charCommand, command.c_str());
 
-        // std::cout<<ptr<<"\n";
-        if(strcmp(ptr,"cd")){
-            ptr=strtok(NULL," ");
-            if(strcmp(ptr,"..")){
-                //cd back function;
-                cd_back();
-            }else{
-                //must be enter command;
-                cd_next(ptr);
-            }
-            continue;    
-        }
-
-        ptr=strtok(NULL," ");// ptr=strtok(NULL," ,");//removes space ans comma
+    //making token of string
+    char *delim = " "; 
+    char * token = strtok(charCommand,delim);
+    while(token!=NULL){
+        std::cout<<token<<"\n";
+        token= strtok(NULL,delim);
     }
 }
 int main(){
     // std::ios_base::sync_with_stdio(false);
     // std::cin.tie(NULL);
+    std::string command;
     try{
         std::cout<<"program started\n";
         get_username_and_systemname(path);
@@ -118,8 +78,7 @@ int main(){
 
         while(true){
             std::cout<<"\n"<<path<<"~>";
-            char command[1000];
-            std::cin.getline(command,1000);
+            getline(std::cin,command);
             process_command(command);
         }
 
