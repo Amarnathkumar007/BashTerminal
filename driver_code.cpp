@@ -20,10 +20,63 @@
 //variables
 std::string path;
 std::string home_path;
+std::string user_system_path;//kali@kali:
 std::string g_path;
 //functions
 void echo(std::string str){std::cout<<str<<"\n";}
+void cd_command(){
+    //check for flag
+    char * flag=strtok(NULL," ");
+    std::cout<<"inside cd: "<<flag;
 
+    if(flag)//not null
+    {
+        //check which flag
+        if(!strcmp(flag,".")){}
+        else if(!strcmp(flag,"..")){
+
+            //one step down
+            int len=g_path.size()-1;
+            while(len>=0){
+                if(g_path[len]=='/'){
+                    break;
+                }
+                len--;
+            }
+            g_path=g_path.substr(0,len);
+            if(home_path==g_path){
+                path=user_system_path;
+            }else if(path==user_system_path){//kali@kali
+                path=g_path;
+            }
+            else if(path!=user_system_path){//kali@kali
+                len=path.size();
+                while(len>=0){
+                   if(path[len]=='/'){
+                        break;
+                    }
+                    len--;
+                }
+                    path=path.substr(0,len);
+            }
+        }
+        else if(!strcmp(flag,"-")){}
+        else if(!strcmp(flag,"~")){
+            path="~";
+        }
+        else if(!flag){
+            //reach to home
+            path="~";
+        }
+        else{
+            std::cout<<"not defined\n";
+        }
+    }else{
+        //i.e sets home path when no arg
+        path="~";
+        g_path=home_path;
+    }
+}
 
 
 
@@ -62,6 +115,7 @@ void get_username_and_systemname(std::string& path)
     }
     g_path=cwd;
     home_path=cwd;
+    user_system_path=path;
 
 }
 
@@ -76,7 +130,7 @@ void process_command(std::string command){
 
     //making token of string
     char *delim = " "; 
-    char * token = strtok(charCommand,delim);
+    char *token = strtok(charCommand,delim);
     while(token!=NULL){
         // std::cout<<token<<"\n";
         
@@ -88,11 +142,23 @@ void process_command(std::string command){
             char *token2=strtok(NULL," ");
             if(token==NULL){
                 //just print 
+                echo(token1);
             }else{
-            //check operator
+                //check operator
+                if(!strcmp(token2,">>")){
+                    //handle file here
+                    // operator_>>(token1);
+                    // char *file_name =strtok(NULL," ");
+
+                }
             }
         }
-
+        if(!strcmp(token,"pwd")){
+            std::cout<<g_path;    
+        }
+        if(!strcmp(token,"cd")){
+            cd_command();
+        }
         token= strtok(NULL,delim);
 
     }
