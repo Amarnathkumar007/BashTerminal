@@ -7,13 +7,28 @@
 #include <limits.h>
 // using namespace std; 
 
+
+//our functions
+#include "cd_pwd_echo_command.cpp"
+#include "auto_completation_feature.cpp"
+#include "history.cpp"
+#include "ls_command.cpp"
+#include "operators.cpp"
+#include "pinfo_command.cpp"
+#include "search_command.cpp"
+
 //variables
 std::string path;
 std::string home_path;
 std::string g_path;
 //functions
 
-//cd finishes
+
+
+
+
+
+//unnecessary functions
 void get_username_and_systemname(std::string& path)
 {
     std::pair<std::string,std::string> info;
