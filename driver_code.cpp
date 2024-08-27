@@ -22,7 +22,7 @@ std::string path;
 std::string home_path;
 std::string g_path;
 //functions
-
+void echo(std::string str){std::cout<<str<<"\n";}
 
 
 
@@ -78,8 +78,23 @@ void process_command(std::string command){
     char *delim = " "; 
     char * token = strtok(charCommand,delim);
     while(token!=NULL){
-        std::cout<<token<<"\n";
+        // std::cout<<token<<"\n";
+        
+        //checking type of command
+        if(!strcmp(token,"echo")){
+            // std::cout<<"entered\n";
+            char *token1=strtok(NULL,"\"");
+            echo(token);
+            char *token2=strtok(NULL," ");
+            if(token==NULL){
+                //just print 
+            }else{
+            //check operator
+            }
+        }
+
         token= strtok(NULL,delim);
+
     }
 }
 int main(){
