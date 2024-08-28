@@ -1,7 +1,11 @@
 #include <iostream>
 #include <cstring> //strtok
+
 // #include <bits/stdc++.h>
 #include <string>
+#include <pwd.h> //for getpwuid
+#include <grp.h> //group id
+#include <sys/stat.h>
 #include <sys/utsname.h>  // For uname
 #include <unistd.h>
 #include <limits.h>
@@ -12,6 +16,14 @@
 // using namespace std; 
 
 
+
+
+//variables
+std::string path;
+std::string home_path;
+std::string user_system_path;//kali@kali:
+std::string g_path;
+
 //our functions
 #include "cd_pwd_echo_command.cpp"
 #include "auto_completation_feature.cpp"
@@ -21,116 +33,8 @@
 #include "pinfo_command.cpp"
 #include "search_command.cpp"
 
-//variables
-std::string path;
-std::string home_path;
-std::string user_system_path;//kali@kali:
-std::string g_path;
+
 //functions
-void ls_command(){
-    //check flag
-    char * flag=strtok(NULL," ");
-    // std::cout<<"inside ls: "<<flag;
-
-
-    DIR* dirp = opendir(g_path.c_str());
-    if(!dirp)//if null
-        throw "Error in g_path i.e path doesn't exist";
-        
-    std::vector<dirent *> files;
-    struct dirent * dp;
-    while ((dp = readdir(dirp)) != NULL) {
-        files.push_back(dp);
-    }
-    closedir(dirp);
-
-    // std::cout<<"printing vector\n";
-
-
-    if(flag){
-        //not null flag
-        char * flag=strtok(NULL," ");
-        if(!strcmp(flag,"-a")){}
-        else if(!strcmp(flag,"-l")){}
-        if(!strcmp(flag,"-a")){}
-        if(!strcmp(flag,".-a")){}
-        if(!strcmp(flag,".-a")){}
-        if(!strcmp(flag,".-a")){}
-        if(!strcmp(flag,".-a")){}
-
-
-
-
-    }else{
-        //if null flag
-        std::vector<std::string> files_name;
-        for(auto i: files)
-            files_name.push_back(i->d_name);
-        
-        sort(files_name.begin(),files_name.end());
-
-        for(auto i: files_name){
-            std::cout<<i<<"\n";
-        }
-    }
-
-}
-void echo(std::string str){std::cout<<str<<"\n";}
-void cd_command(){
-    //check for flag
-    char * flag=strtok(NULL," ");
-    std::cout<<"inside cd: "<<flag;
-
-    if(flag)//not null
-    {
-        //check which flag
-        if(!strcmp(flag,".")){}
-        else if(!strcmp(flag,"..")){
-
-            //one step down
-            int len=g_path.size()-1;
-            while(len>=0){
-                if(g_path[len]=='/'){
-                    break;
-                }
-                len--;
-            }
-            g_path=g_path.substr(0,len);
-            if(home_path==g_path){
-                path=user_system_path;
-            }else if(path==user_system_path){//kali@kali
-                path=g_path;
-            }
-            else if(path!=user_system_path){//kali@kali
-                len=path.size();
-                while(len>=0){
-                   if(path[len]=='/'){
-                        break;
-                    }
-                    len--;
-                }
-                    path=path.substr(0,len);
-            }
-        }
-        else if(!strcmp(flag,"-")){}
-        else if(!strcmp(flag,"~")){
-            path="~";
-        }
-        else if(!flag){
-            //reach to home
-            path="~";
-        }
-        else{
-            std::cout<<"not defined\n";
-        }
-    }else{
-        //i.e sets home path when no arg
-        path="~";
-        g_path=home_path;
-    }
-}
-
-
 
 
 //unnecessary functions
