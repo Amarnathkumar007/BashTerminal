@@ -5,6 +5,10 @@
 #include <sys/utsname.h>  // For uname
 #include <unistd.h>
 #include <limits.h>
+#include <sys/types.h>
+#include <dirent.h> //for ls comamnd
+#include <bits/stdc++.h> //for ls comamnd
+
 // using namespace std; 
 
 
@@ -23,6 +27,54 @@ std::string home_path;
 std::string user_system_path;//kali@kali:
 std::string g_path;
 //functions
+void ls_command(){
+    //check flag
+    char * flag=strtok(NULL," ");
+    // std::cout<<"inside ls: "<<flag;
+
+
+    DIR* dirp = opendir(g_path.c_str());
+    if(!dirp)//if null
+        throw "Error in g_path i.e path doesn't exist";
+        
+    std::vector<dirent *> files;
+    struct dirent * dp;
+    while ((dp = readdir(dirp)) != NULL) {
+        files.push_back(dp);
+    }
+    closedir(dirp);
+
+    // std::cout<<"printing vector\n";
+
+
+    if(flag){
+        //not null flag
+        char * flag=strtok(NULL," ");
+        if(!strcmp(flag,"-a")){}
+        else if(!strcmp(flag,"-l")){}
+        if(!strcmp(flag,"-a")){}
+        if(!strcmp(flag,".-a")){}
+        if(!strcmp(flag,".-a")){}
+        if(!strcmp(flag,".-a")){}
+        if(!strcmp(flag,".-a")){}
+
+
+
+
+    }else{
+        //if null flag
+        std::vector<std::string> files_name;
+        for(auto i: files)
+            files_name.push_back(i->d_name);
+        
+        sort(files_name.begin(),files_name.end());
+
+        for(auto i: files_name){
+            std::cout<<i<<"\n";
+        }
+    }
+
+}
 void echo(std::string str){std::cout<<str<<"\n";}
 void cd_command(){
     //check for flag
@@ -159,6 +211,10 @@ void process_command(std::string command){
         if(!strcmp(token,"cd")){
             cd_command();
         }
+        if(!strcmp(token,"ls")){
+            ls_command();
+        }
+        
         token= strtok(NULL,delim);
 
     }
