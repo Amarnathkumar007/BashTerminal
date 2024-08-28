@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstring> //strtok
-
+#include <ctime>
 // #include <bits/stdc++.h>
 #include <string>
 #include <pwd.h> //for getpwuid
@@ -13,16 +13,15 @@
 #include <dirent.h> //for ls comamnd
 #include <bits/stdc++.h> //for ls comamnd
 
-// using namespace std; 
-
+using namespace std; 
 
 
 
 //variables
-std::string path;
-std::string home_path;
-std::string user_system_path;//kali@kali:
-std::string g_path;
+string path;
+string home_path;
+string user_system_path;//kali@kali:
+string g_path;
 
 //our functions
 #include "cd_pwd_echo_command.cpp"
@@ -79,6 +78,7 @@ void get_username_and_systemname(std::string& path)
 //     //update path & global path;
 // };
 
+
 void process_command(std::string command){
     //converting string to char*
     char *charCommand = new char[command.size() + 1]; // +1 for null terminator
@@ -89,7 +89,7 @@ void process_command(std::string command){
     char *token = strtok(charCommand,delim);
     while(token!=NULL){
         // std::cout<<token<<"\n";
-        
+
         //checking type of command
         if(!strcmp(token,"echo")){
             // std::cout<<"entered\n";
@@ -118,9 +118,8 @@ void process_command(std::string command){
         if(!strcmp(token,"ls")){
             ls_command();
         }
-        
-        token= strtok(NULL,delim);
 
+        token= strtok(NULL,delim);
     }
 }
 int main(){
@@ -137,7 +136,6 @@ int main(){
             getline(std::cin,command);
             process_command(command);
         }
-
 
     }catch(std::string ex)
     {
