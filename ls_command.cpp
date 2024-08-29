@@ -248,7 +248,7 @@ void ls_command(){
 
             for(int k=0;k<v_parameter.size();k++){
                 for(int i=0;i<n;i++){
-                    if(!strcmp(v_parameter[k],files[i]->d_name)){
+                    if(!strcmp(v_parameter[k],file_pair[i].first.c_str())){
                         // std::cout<<"file_found ";
                         std::string path=g_path+"/"+file_pair[i].first;
                         struct stat file_stat;
