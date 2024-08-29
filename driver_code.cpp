@@ -127,10 +127,10 @@ int main(){
     // std::cin.tie(NULL);
     std::string command;
     try{
-        std::cout<<"program started\n";
+        // std::cout<<"program started\n";
         get_username_and_systemname(path);
-        std::cout<<path;
-
+        // std::cout<<path;
+        // std::cout<<"\033[2J\033[1;1H";
         while(true){
             std::cout<<"\n"<<path<<"~>";
             getline(std::cin,command);

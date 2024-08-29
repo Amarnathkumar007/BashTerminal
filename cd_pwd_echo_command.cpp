@@ -1,10 +1,12 @@
 
 void echo(std::string str){std::cout<<str<<"\n";}
 
+bool status=false; //initilially cd - not executed
+string previous_path;
 void cd_command(){
     //check for flag
     char * flag=strtok(NULL," ");
-    std::cout<<"inside cd: "<<flag;
+    // std::cout<<"inside cd: "<<flag;
 
     if(flag)//not null
     {
@@ -37,7 +39,27 @@ void cd_command(){
                     path=path.substr(0,len);
             }
         }
-        else if(!strcmp(flag,"-")){}
+        else if(!strcmp(flag,"-")){
+            if(status){
+                path=previous_path;
+                g_path=previous_path;
+                status=!status;
+            }else{
+                status=!status;
+                previous_path=g_path;
+                //reduce g_path;
+                int len=g_path.size()-1;
+                while(len>0){
+                    if(g_path[len]=='/'){
+                        break;
+                    }
+                    len--;
+                }
+                g_path=g_path.substr(0,len);
+                //set path;
+                path=g_path;
+            }
+        }
         else if(!strcmp(flag,"~")){
             path="~";
         }

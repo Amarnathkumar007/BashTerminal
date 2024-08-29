@@ -26,7 +26,68 @@ struct passwd {
     char   *pw_shell;  // Login shell
 };
 */
+void get_file_stat(string path,struct stat &file_stat,std::vector<std::pair<std::string,dirent*>> &file_pair,int i){
+    if (stat(path.c_str(), &file_stat) != 0) {
+        std::string err= "Inside ls -l: failed to info about path: "+path;
+        throw err;  
+    }
+}
+void get_detail_file(struct stat &file_stat,std::vector<std::pair<std::string,dirent*>> &file_pair,int i){
+        std::string lsData="";
+    //permissions
+        lsData += (S_ISDIR(file_stat.st_mode) ? 'd' : '-');
+        lsData += (file_stat.st_mode & S_IRUSR ? 'r' : '-');
+        lsData += (file_stat.st_mode & S_IWUSR ? 'w' : '-');
+        lsData += (file_stat.st_mode & S_IXUSR ? 'x' : '-');
+        lsData += (file_stat.st_mode & S_IRGRP ? 'r' : '-');
+        lsData += (file_stat.st_mode & S_IWGRP ? 'w' : '-');
+        lsData += (file_stat.st_mode & S_IXGRP ? 'x' : '-');
+        lsData += (file_stat.st_mode & S_IROTH ? 'r' : '-');
+        lsData += (file_stat.st_mode & S_IWOTH ? 'w' : '-');
+        lsData += (file_stat.st_mode & S_IXOTH ? 'x' : '-');
+    //hardlinks
+        lsData+="\t";
+        lsData+=to_string(file_stat.st_nlink);
+        lsData+="\t";
 
+
+    // file owner
+        struct passwd *pw = getpwuid(file_stat.st_uid);
+        if(pw == nullptr)
+            lsData+="unknown_user";
+        else    
+            lsData+=pw->pw_name;
+
+        lsData+="\t";
+        // lsData+="kali";
+        // lsData+="\t";
+        // lsData+="kali";
+        // lsData+="\t";
+
+    // //file group
+        struct group  *gr = getgrgid(file_stat.st_gid);
+        if(gr != 0)
+            lsData+=gr->gr_name;
+        else    
+            lsData+="group_owner";
+            
+        lsData+="\t";
+
+    //size of file
+        lsData+=std::to_string(file_stat.st_size);
+        lsData+="\t";
+    //date & time
+        char time[100];
+        strftime(time, sizeof(time), "%b %2d %H:%M", localtime(&file_stat.st_mtime));
+        lsData += time;
+
+        // lsData+="date_time";
+        lsData+="\t";
+    //file name
+        lsData+=file_pair[i].first;
+
+    std::cout<<lsData<<std::endl;
+}
 void ls_command(){
     //check flag
     char * flag=strtok(NULL," ");
@@ -80,66 +141,8 @@ void ls_command(){
 
                     struct stat file_stat;
                     // Get file status
-                    if (stat(path.c_str(), &file_stat) != 0) {
-                        std::string err= "Inside ls -l: failed to info about path: "+path;
-                        throw err;  
-                    }else{
-
-                        std::string lsData="";
-                        //permissions
-                            lsData += (S_ISDIR(file_stat.st_mode) ? 'd' : '-');
-                            lsData += (file_stat.st_mode & S_IRUSR ? 'r' : '-');
-                            lsData += (file_stat.st_mode & S_IWUSR ? 'w' : '-');
-                            lsData += (file_stat.st_mode & S_IXUSR ? 'x' : '-');
-                            lsData += (file_stat.st_mode & S_IRGRP ? 'r' : '-');
-                            lsData += (file_stat.st_mode & S_IWGRP ? 'w' : '-');
-                            lsData += (file_stat.st_mode & S_IXGRP ? 'x' : '-');
-                            lsData += (file_stat.st_mode & S_IROTH ? 'r' : '-');
-                            lsData += (file_stat.st_mode & S_IWOTH ? 'w' : '-');
-                            lsData += (file_stat.st_mode & S_IXOTH ? 'x' : '-');
-                        //hardlinks
-                            lsData+="\t";
-                            lsData+=to_string(file_stat.st_nlink);
-                            lsData+="\t";
-
-
-                        // file owner
-                            struct passwd *pw = getpwuid(file_stat.st_uid);
-                            if(pw == nullptr)
-                                lsData+="unknown_user";
-                            else    
-                                lsData+=pw->pw_name;
-
-                            lsData+="\t";
-                            // lsData+="kali";
-                            // lsData+="\t";
-                            // lsData+="kali";
-                            // lsData+="\t";
-
-                        // //file group
-                            struct group  *gr = getgrgid(file_stat.st_gid);
-                            if(gr != 0)
-                                lsData+=gr->gr_name;
-                            else    
-                                lsData+="group_owner";
-                                
-                            lsData+="\t";
-
-                        //size of file
-                            lsData+=std::to_string(file_stat.st_size);
-                            lsData+="\t";
-                        //date & time
-                            char time[100];
-                            strftime(time, sizeof(time), "%b %2d %H:%M", localtime(&file_stat.st_mtime));
-                            lsData += time;
-
-                            // lsData+="date_time";
-                            lsData+="\t";
-                        //file name
-                            lsData+=file_pair[i].first;
-
-                        std::cout<<lsData<<std::endl;
-                    }
+                    get_file_stat(path,file_stat,file_pair,i);
+                    get_detail_file(file_stat,file_pair,i);
                 }
             }
             else if(!strcmp(flag,"-la") || !strcmp(flag,"-al")){
@@ -150,66 +153,8 @@ void ls_command(){
 
                     struct stat file_stat;
                     // Get file status
-                    if (stat(path.c_str(), &file_stat) != 0) {
-                        std::string err= "Inside ls -l: failed to info about path: "+path;
-                        throw err;  
-                    }else{
-
-                        std::string lsData="";
-                        //permissions
-                            lsData += (S_ISDIR(file_stat.st_mode) ? 'd' : '-');
-                            lsData += (file_stat.st_mode & S_IRUSR ? 'r' : '-');
-                            lsData += (file_stat.st_mode & S_IWUSR ? 'w' : '-');
-                            lsData += (file_stat.st_mode & S_IXUSR ? 'x' : '-');
-                            lsData += (file_stat.st_mode & S_IRGRP ? 'r' : '-');
-                            lsData += (file_stat.st_mode & S_IWGRP ? 'w' : '-');
-                            lsData += (file_stat.st_mode & S_IXGRP ? 'x' : '-');
-                            lsData += (file_stat.st_mode & S_IROTH ? 'r' : '-');
-                            lsData += (file_stat.st_mode & S_IWOTH ? 'w' : '-');
-                            lsData += (file_stat.st_mode & S_IXOTH ? 'x' : '-');
-                        //hardlinks
-                            lsData+="\t";
-                            lsData+=to_string(file_stat.st_nlink);
-                            lsData+="\t";
-
-
-                        // file owner
-                            struct passwd *pw = getpwuid(file_stat.st_uid);
-                            if(pw == nullptr)
-                                lsData+="unknown_user";
-                            else    
-                                lsData+=pw->pw_name;
-
-                            lsData+="\t";
-                            // lsData+="kali";
-                            // lsData+="\t";
-                            // lsData+="kali";
-                            // lsData+="\t";
-
-                        // //file group
-                            struct group  *gr = getgrgid(file_stat.st_gid);
-                            if(gr != 0)
-                                lsData+=gr->gr_name;
-                            else    
-                                lsData+="group_owner";
-                                
-                            lsData+="\t";
-
-                        //size of file
-                            lsData+=std::to_string(file_stat.st_size);
-                            lsData+="\t";
-                        //date & time
-                            char time[100];
-                            strftime(time, sizeof(time), "%b %2d %H:%M", localtime(&file_stat.st_mtime));
-                            lsData += time;
-
-                            // lsData+="date_time";
-                            lsData+="\t";
-                        //file name
-                            lsData+=file_pair[i].first;
-
-                        std::cout<<lsData<<std::endl;
-                    }
+                    get_file_stat(path,file_stat,file_pair,i);
+                    get_detail_file(file_stat,file_pair,i);
                 }
                 
             }
@@ -290,12 +235,28 @@ void ls_command(){
         }else{
             //when file given with flag
             //check if file exist
-            char* file_name=strtok(NULL," ");
             int n=files.size();
-            for(int i=0;i<n;i++){
-            
+            // std::cout<<"inside ls -l <file> 1\n";
+            //find number of files
+            vector<char*> v_parameter;
+            v_parameter.push_back(file_input);
+            while(file_input){    
+                // std::cout<<"inside ls -l <file> 2:  ";
+                v_parameter.push_back(file_input);
+                file_input=strtok(NULL," "); //not working
             }
 
+            for(int k=0;k<v_parameter.size();k++){
+                for(int i=0;i<n;i++){
+                    if(!strcmp(v_parameter[k],files[i]->d_name)){
+                        // std::cout<<"file_found ";
+                        std::string path=g_path+"/"+file_pair[i].first;
+                        struct stat file_stat;
+                        get_file_stat(path,file_stat,file_pair,i);
+                        get_detail_file(file_stat,file_pair,i);
+                    }
+                }
+            }
         }
 
 
