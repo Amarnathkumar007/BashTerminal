@@ -109,14 +109,17 @@ void process_command(std::string command){
                 }
             }
         }
-        if(!strcmp(token,"pwd")){
+        else if(!strcmp(token,"pwd")){
             std::cout<<g_path;    
         }
-        if(!strcmp(token,"cd")){
+        else if(!strcmp(token,"cd")){
             cd_command();
         }
-        if(!strcmp(token,"ls")){
+        else if(!strcmp(token,"ls")){
             ls_command();
+        }else if(!strcmp(token,"search")){
+            token= strtok(NULL,delim);
+            search_command(token);
         }
 
         token= strtok(NULL,delim);

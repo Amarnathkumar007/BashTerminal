@@ -88,6 +88,7 @@ void get_detail_file(struct stat &file_stat,std::vector<std::pair<std::string,di
 
     std::cout<<lsData<<std::endl;
 }
+
 void ls_command(){
     //check flag
     char * flag=strtok(NULL," ");
