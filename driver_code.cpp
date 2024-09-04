@@ -32,26 +32,30 @@ string g_path;
 #include "pinfo_command.cpp"
 #include "search_command.cpp"
 #include "execvp_command.cpp"
-
+#include "pipeline.cpp"
+#include "redirection.cpp"
 
 //functions
 history hist_obj; //little work needed in execv
 process_running process_obj;
+
 //unnecessary functions
 void signal_callback_handler(int signum) {
-        switch (signum) {
-            case SIGINT:
-                std::cout << "Caught SIGINT (Ctrl+C). Ignoring and continuing...\n";
-                break;
-            case SIGTSTP:
-                std::cout << "Caught SIGTSTP (Ctrl+Z). Ignoring and continuing...\n";
-                exit(signum);
-                break;
-            default:
-                std::cout << "Unhandled signal: " << signal << "\n";
-                break;
+    switch (signum) {
+        case SIGINT:
+            std::cout << "Caught SIGINT (Ctrl+C). Ignoring and continuing...\n";
+            break;
+        case SIGTSTP:
+            std::cout << "Caught SIGTSTP (Ctrl+Z). Ignoring and continuing...\n";
+            exit(signum);
+            break;
+        default:
+            std::cout << "Unhandled signal: " << signal << "\n";
+            break;
     }
 }
+void execute_pipe(string command){executePipeline(command);}
+
 
 void get_username_and_systemname(std::string& path)
 {
@@ -69,9 +73,7 @@ void get_username_and_systemname(std::string& path)
 
     //checking error
     if(username == nullptr || hostname == nullptr) 
-    {
         throw "get_userNmae_and_systemnam: error1";
-    }
 
     path+=username;
     path+="@";
@@ -87,13 +89,14 @@ void get_username_and_systemname(std::string& path)
     g_path=cwd;
     home_path=cwd;
     user_system_path=path;
-
 }
 
 
 
 void process_command(std::string command,std::string input_command){
     //converting string to char*
+
+    //
     char *charCommand = new char[command.size() + 1]; // +1 for null terminator
     std::strcpy(charCommand, command.c_str());
 
@@ -137,7 +140,7 @@ void process_command(std::string command,std::string input_command){
             search_command(token);
         }else if(!strcmp(token,"history")){
             
-            token =strtok(NULL,delim);
+            // token =strtok(NULL,delim);
             if(token==NULL){
                 hist_obj.get_data(10);
                 break;
@@ -146,14 +149,36 @@ void process_command(std::string command,std::string input_command){
         }
         else if(!strcmp(token,"exit")){
             exit(0);
-        }else{
-            execvp_command execvp_obj;
-            execvp_obj.execute_command(input_command);
+        }else if(!strcmp(token,"pinfo")){
+            token= strtok(NULL,delim);
+            // cout<<"inside pinfo"<<endl;
+            // cout<<"token"<<token<<endl;
+            print_pinfo(stoi(token));
+            break;
+        }
+        else{
+            execute_command(input_command);
             break;
         }
     token= strtok(NULL,delim);
     }
 }
+
+// std::vector<std::string> split(const std::string& s, const std::string& delimiter) {
+//     std::vector<std::string> tokens;
+//     size_t pos = 0;
+//     std::string token;
+//     std::string temp = s; // Create a modifiable copy of the input string
+//     while ((pos = temp.find(delimiter)) != std::string::npos) {
+//         token = temp.substr(0, pos);
+//         tokens.push_back(token);
+//         temp.erase(0, pos + delimiter.length());
+//     }
+//     tokens.push_back(temp);
+
+//     return tokens;
+// }
+
 int main(){
     // std::ios_base::sync_with_stdio(false);
     // std::cin.tie(NULL);
@@ -174,7 +199,18 @@ int main(){
             std::cout<<"\n"<<path<<"~>";
             if(getline(std::cin,command)){
                 input_command=command;
-                process_command(command,input_command);
+                //check for pipeline
+                if(command.find("|") !=string::npos){
+                    // std::cout<<"pipline\n";
+                    execute_pipe(command);
+                }else if(command.find(">>")!=string::npos)
+                {
+                    executeCommandWithRedirection(command);
+                }
+                else{
+                    process_command(command,input_command);
+                }
+
             }else{
                 //to handle ctrl signal as it return end of file signal
                 if (std::cin.eof()) {

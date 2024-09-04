@@ -47,6 +47,15 @@ class history
             }
         }   
     }
+    void get_data(){
+        int pointer=top;
+        for(int i=0;i<10;i++){
+                if(vec[pointer]!="$")
+                    cout<<vec[pointer--]<<endl;
+                else    
+                    break;
+            }
+    }
     ~history(){};
     
 };

@@ -1,12 +1,30 @@
 
 void echo(std::string str){std::cout<<str<<"\n";}
 
+bool is_exists(std::string& path, const std::string& folder_name) {
+    // Construct the full path to the folder
+    // cout<<"Inside exist: "<<path<<" "<<folder_name<<endl;
+    std::string new_path = path + "/" + folder_name;
+
+    // Check if the folder exists
+    if (access(new_path.c_str(), F_OK) == 0) {
+        // Folder exists, update the path
+        path = new_path;
+        return true;
+    } else {
+        // Folder does not exist
+        std::cerr << "Folder does not exist: " << new_path << std::endl;
+        return false;
+    }
+}
+
+
 bool status=false; //initilially cd - not executed
 string previous_path;
 void cd_command(){
     //check for flag
     char * flag=strtok(NULL," ");
-    // std::cout<<"inside cd: "<<flag;
+    // std::cout<<"inside cd: "<<flag<<endl;
 
     if(flag)//not null
     {
@@ -65,14 +83,20 @@ void cd_command(){
         }
         else if(!flag){
             //reach to home
-            path="~";
+            path=home_path;
         }
         else{
-            std::cout<<"not defined\n";
+            is_exists(g_path,flag);
+            
+            if(g_path==home_path){
+                path=user_system_path;
+            }else{
+                path=g_path;
+            }
         }
     }else{
         //i.e sets home path when no arg
-        path="~";
+        path=user_system_path;
         g_path=home_path;
     }
 }
