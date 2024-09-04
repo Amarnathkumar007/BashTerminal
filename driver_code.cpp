@@ -12,7 +12,7 @@
 #include <sys/types.h>
 #include <dirent.h> //for ls comamnd
 #include <bits/stdc++.h> //for ls comamnd
-
+#include <signal.h>
 using namespace std; 
 
 
@@ -31,12 +31,28 @@ string g_path;
 #include "operators.cpp"
 #include "pinfo_command.cpp"
 #include "search_command.cpp"
+#include "execvp_command.cpp"
 
 
 //functions
-
-
+history hist_obj; //little work needed in execv
+process_running process_obj;
 //unnecessary functions
+void signal_callback_handler(int signum) {
+        switch (signum) {
+            case SIGINT:
+                std::cout << "Caught SIGINT (Ctrl+C). Ignoring and continuing...\n";
+                break;
+            case SIGTSTP:
+                std::cout << "Caught SIGTSTP (Ctrl+Z). Ignoring and continuing...\n";
+                exit(signum);
+                break;
+            default:
+                std::cout << "Unhandled signal: " << signal << "\n";
+                break;
+    }
+}
+
 void get_username_and_systemname(std::string& path)
 {
     std::pair<std::string,std::string> info;
@@ -74,12 +90,9 @@ void get_username_and_systemname(std::string& path)
 
 }
 
-// void command_cd(){
-//     //update path & global path;
-// };
 
 
-void process_command(std::string command){
+void process_command(std::string command,std::string input_command){
     //converting string to char*
     char *charCommand = new char[command.size() + 1]; // +1 for null terminator
     std::strcpy(charCommand, command.c_str());
@@ -89,6 +102,8 @@ void process_command(std::string command){
     char *token = strtok(charCommand,delim);
     while(token!=NULL){
         // std::cout<<token<<"\n";
+            hist_obj.push(command);
+
 
         //checking type of command
         if(!strcmp(token,"echo")){
@@ -120,26 +135,56 @@ void process_command(std::string command){
         }else if(!strcmp(token,"search")){
             token= strtok(NULL,delim);
             search_command(token);
+        }else if(!strcmp(token,"history")){
+            
+            token =strtok(NULL,delim);
+            if(token==NULL){
+                hist_obj.get_data(10);
+                break;
+            }else
+                hist_obj.get_data(stoi(token));
         }
-
-        token= strtok(NULL,delim);
+        else if(!strcmp(token,"exit")){
+            exit(0);
+        }else{
+            execvp_command execvp_obj;
+            execvp_obj.execute_command(input_command);
+            break;
+        }
+    token= strtok(NULL,delim);
     }
 }
 int main(){
     // std::ios_base::sync_with_stdio(false);
     // std::cin.tie(NULL);
+    process_obj.add_process(getpid()); //adding to process object
+
     std::string command;
+    std::string input_command;
     try{
+        //handle signals
+        signal(SIGINT, signal_callback_handler);
+        signal(SIGTSTP, signal_callback_handler); // Handle Ctrl+Z
         // std::cout<<"program started\n";
         get_username_and_systemname(path);
         // std::cout<<path;
         // std::cout<<"\033[2J\033[1;1H";
+
         while(true){
             std::cout<<"\n"<<path<<"~>";
-            getline(std::cin,command);
-            process_command(command);
+            if(getline(std::cin,command)){
+                input_command=command;
+                process_command(command,input_command);
+            }else{
+                //to handle ctrl signal as it return end of file signal
+                if (std::cin.eof()) {
+                    std::cout << "EOF (Ctrl+D) received. Exiting...\n";
+                    cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ignore the rest of the line
+                    break;
+                } 
+            };
         }
-
     }catch(std::string ex)
     {
         std::cout<<ex;
